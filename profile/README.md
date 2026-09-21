@@ -4,77 +4,68 @@
     <img src="https://www.nygen.io/static/img/nygen-logo.png" alt="Nygen" width="230">
   </picture>
 
-  ### Decode every cell.
+  Open-source tools and AI agents for single-cell biology.
 
-  AI for single-cell biology, from computation to annotation to interpretation.
-
-  [Homepage](https://nygen.io) · [Docs](https://www.nygen.io/docs/cytetype) · [Technology](https://www.nygen.io/technology) · [Book a demo](https://calendly.com/nygen/parashar)
+  [Website](https://nygen.io) · [CyteType docs](https://www.nygen.io/docs/cytetype) · [Scarf docs](https://scarf.readthedocs.io)
 
 </div>
 
 ---
 
-👋 Welcome. We're **Nygen Analytics**, an applied AI/ML lab working on single-cell biology, based at Medicon Village in Lund, Sweden.
+We are **Nygen Analytics**, an applied AI lab in Lund, Sweden. Single-cell experiments now produce millions of cells per study, and the bottleneck has moved from sequencing and compute to interpretation: what each cell is, and what it is doing. We build tools for that layer, and we keep the evidence attached to every result so you can trace it and defend it.
 
-Single-cell sequencing routinely produces datasets with millions of cells. The bottleneck is no longer the sequencing or the compute, it's the biological interpretation: figuring out what each cell actually is and what it's doing. That's the layer we build. Our tools turn raw single-cell data into cell-level biology you can trace, audit, and defend, with the evidence attached to every call.
+## Start here
 
-Our work is trusted by researchers at institutions including Memorial Sloan Kettering, Harvard, Oxford, Stanford, Cambridge, Helmholtz Munich, and Institut Pasteur.
+| Repository | What it does | Install |
+| :-- | :-- | :-- |
+| **[CyteType](https://github.com/NygenAnalytics/CyteType)** | Evidence-backed cell type annotation for Scanpy / AnnData. Returns cell type, state, Cell Ontology ID, confidence, and an interactive HTML report for every cluster. | `pip install cytetype` |
+| **[CyteTypeR](https://github.com/NygenAnalytics/CyteTypeR)** | The same annotation workflow for Seurat objects. | `devtools::install_github("NygenAnalytics/CyteTypeR")` |
+| **[Scarf](https://github.com/NygenAnalytics/scarf)** | Memory-efficient analysis of scRNA-seq, scATAC-seq, CITE-seq, and multi-omic data. Streams from local or remote Zarr stores, so millions of cells fit on a laptop. | `pip install scarf` |
+| **[CyteOnto](https://github.com/NygenAnalytics/CyteOnto)** | Semantic comparison of cell type labels in Cell Ontology embedding space. This is how we score predicted annotations against ground truth beyond exact string matches. | Hosted service, no key needed. See the repo. |
 
-## What we build
+### Annotate a clustered dataset
 
-Two products, backed by open-source foundations.
+```bash
+pip install cytetype
+cytetype setup   # browser sign-in; free for academic and non-commercial research
+```
 
-**[CyteType](https://www.nygen.io/products/cytetype)** is our hosted annotation service: a multi-agent system where specialized AI agents debate competing hypotheses, ground them in full expression data, and validate against external databases. Every annotation comes back with marker-level evidence, a Cell Ontology term, and a confidence score, in an audit-ready interactive report with a per-cluster chat interface. You drive it from your own analysis environment through our SDK.
+```python
+from cytetype import CyteType
 
-**[ScarfWeb](https://www.nygen.io/products/scarfweb)** is a browser-native workbench for secondary analysis. It runs on distributed, secure infrastructure and is powered by Scarf, our open-source analysis engine.
+annotator = CyteType(adata, group_key="clusters", rank_key="rank_genes_clusters", n_top_genes=100)
+adata = annotator.run(study_context="Human PBMC from a healthy donor")
+```
 
-## Open source
+Each cluster comes back with an annotation, a Cell Ontology term, a confidence score, and the marker-level evidence behind the call. [Try it in Colab](https://colab.research.google.com/drive/1aRLsI3mx8JR8u5BKHs48YUbLsqRsh2N7?usp=sharing) or [open an example report](https://cytetype.nygen.io/report/e70e2883-7713-4121-94f2-5b57eabd1468?v=260303).
 
-The public repositories, and a good place to start if you want to see how we work:
+### Analyse atlas-scale data
 
-🧬 **[CyteType](https://github.com/NygenAnalytics/CyteType)** `Python`
-The SDK for our hosted annotation service. Submit clusters straight from Scanpy / AnnData and get evidence-backed, ontology-mapped annotations back into your object. No API keys needed to get started.
+Scarf runs quality control, feature selection, graph building, embedding, clustering, and marker search out of core, inside a memory budget you set. Results are fingerprinted by their inputs and parameters, so changing one setting recomputes only what depends on it. Start with the [scRNA-seq tutorial](https://scarf.readthedocs.io/en/latest/tutorials/scrna_seq.html).
 
-🧬 **[CyteTypeR](https://github.com/NygenAnalytics/CyteTypeR)** `R`
-The same SDK for Seurat workflows.
+## How the pieces fit
 
-⚡ **[Scarf](https://github.com/NygenAnalytics/scarf)** `Python`
-Memory-efficient analysis of scRNA-seq, scATAC-seq, and CITE-seq data, built to handle atlas-scale datasets with millions of cells on a laptop. This is the engine behind ScarfWeb.
-
-🔬 **[CyteOnto](https://github.com/NygenAnalytics/CyteOnto)** `Python`
-Automated semantic comparison of cell type annotations in Cell Ontology embedding space. This is how we benchmark predicted labels against ground truth beyond exact string matching.
-
-The CyteType SDKs are free for academic and non-commercial research (CC BY-NC-SA 4.0).
+- **Scarf** is the analysis engine. It also powers **[ScarfWeb](https://www.nygen.io/products/scarfweb)**, our browser-based workbench for secondary analysis.
+- **CyteType** and **CyteTypeR** are clients for our hosted annotation service. Specialised agents weigh competing hypotheses against the full expression data and external databases, and a review step checks every call.
+- **CyteOnto** is the benchmark layer. We use it to evaluate CyteType against other annotators, and you can use it to evaluate yours.
 
 ## Publications
 
-📄 Ahuja G, Antill A, Su Y, Dall'Olio GM, Basnayake S, Karlsson G, Dhapola P. **Multi-agent AI enables evidence-based cell annotation in single-cell transcriptomics.** bioRxiv, 2025. [doi:10.1101/2025.11.06.686964](https://www.biorxiv.org/content/10.1101/2025.11.06.686964v1)
+- Ahuja G, Antill A, Su Y, Dall'Olio GM, Basnayake S, Karlsson G, Dhapola P. **Multi-agent AI enables evidence-based cell annotation in single-cell transcriptomics.** bioRxiv, 2025. [doi:10.1101/2025.11.06.686964](https://www.biorxiv.org/content/10.1101/2025.11.06.686964v1)
+- Dhapola P, Rodhe J, Olofzon R, Bonald T, Erlandsson E, Soneji S, Karlsson G. **Scarf enables a highly memory-efficient analysis of large-scale single-cell genomics data.** Nature Communications 13, 4616, 2022. [doi:10.1038/s41467-022-32097-3](https://www.nature.com/articles/s41467-022-32097-3)
 
-📄 Dhapola P, Rodhe J, Olofzon R, Bonald T, Erlandsson E, Soneji S, Karlsson G. **Scarf enables a highly memory-efficient analysis of large-scale single-cell genomics data.** Nature Communications 13, 4616, 2022. [doi:10.1038/s41467-022-32097-3](https://www.nature.com/articles/s41467-022-32097-3)
+Scripts and notebooks behind the CyteType paper are in [CyteType_manuscript](https://github.com/NygenAnalytics/CyteType_manuscript).
 
-## Our stack
+## Get help, contribute, or work with us
 
-The work sits where core bioinformatics meets applied ML:
-
-- **Single-cell bioinformatics.** Scanpy, AnnData, Seurat, and the methods underneath them, from preprocessing and clustering to differential expression and integration.
-- **Agentic workflows.** Multi-agent systems that reason over expression data, retrieve and weigh evidence, and self-evaluate their own calls.
-- **LLM fine-tuning and evaluation.** Adapting and benchmarking language models for single-cell tasks, including our open benchmarking across 16 LLMs.
-- **Scalable infrastructure.** Memory-efficient processing and cloud infrastructure on AWS for atlas-scale data.
-
-## Work with us
-
-If you work on single-cell data, or you want to, we'd like to work with you. That covers a lot of ground: building on top of our tools, extending them to a problem they don't handle yet, benchmarking them against your own datasets, or bringing us a research question or collaboration. If you just want to make the tools better, that counts too. We also take on ambitious interns who want to go deep on single-cell genomics, scalable systems, or applied AI for biology.
-
-Ways to get started:
-
-- **Build with the tools.** `pip install cytetype`, or grab [Scarf](https://github.com/NygenAnalytics/scarf) and [CyteTypeR](https://github.com/NygenAnalytics/CyteTypeR).
-- **Extend or improve them.** Open an issue or a pull request on any repo. We read every one.
-- **Talk to us** about a collaboration, a role, or an internship: [support@nygen.io](mailto:support@nygen.io) or [nygen.io/contact](https://www.nygen.io/contact).
+- **Bugs and feature requests:** open an issue on the relevant repository. We read every one.
+- **Questions and discussion:** join the [Discord](https://discord.gg/V6QFM4AN).
+- **Collaborations, benchmarking on your data, roles, and internships:** [contact@nygen.io](mailto:contact@nygen.io) or [nygen.io/contact](https://www.nygen.io/contact).
 
 <div align="center">
 
 [Website](https://nygen.io) · [LinkedIn](https://www.linkedin.com/company/nygen) · [X](https://x.com/NygenAnalytics) · [YouTube](https://www.youtube.com/@NygenAnalytics)
 
-<sub>© Nygen Analytics AB · Lund, Sweden</sub>
+<sub>© Nygen Analytics AB · Medicon Village, Lund, Sweden</sub>
 
 </div>
